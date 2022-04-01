@@ -32,8 +32,42 @@ import 'package:nats_client/natslite/subscription.dart';
     print(result.data);
   });
   conn.publish('enter', utf8.encode(json.encode({'id': myId})));
+```
 
 ```
+import 'package:nats_client/natslite/nats.dart';
+import 'package:nats_client/natslite/constants.dart';
+import 'package:nats_client/natslite/subscription.dart';
+
+...
+    const token = 'CREATE USER TOKEN - nsc add user --bearer --name <n>';
+    late Nats conn;
+    conn = Nats(opts: {}, debug: true,
+        statusCallback: (status, error) async {
+          if (error != null) {
+            print('NetService:ERROR $error');
+          }
+          if (status == Status.PING_TIMER) {
+            print(status.toString());
+          } else if (status == Status.CONNECT) {
+            // sync request
+            final msg = await conn.request('/test/notifications', utf8.encode(json.encode({})););
+            print(json.decode(utf8.decode(msg)));
+            
+            // subscribe to channel
+            conn.subscribe('/test/notifications/stream', (Result res) {
+              print(utf8.decode(res.data));
+            });
+          }
+        });
+    conn.authenticator.auth = (String nonce) {
+      return {'jwt': token, 'nkey': '', 'sig': ''};
+    };
+    conn.init('wss://{{SERVER}}');
+  }
+```
+
+
 
  - Using Nats Authenticators
  ```
