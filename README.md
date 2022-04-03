@@ -98,3 +98,61 @@ import 'package:nats_client/natslite/subscription.dart';
      authenticator: CredsAuthenticator.create(certificate),
      ...
 ```
+
+## Installation of the NGS and NSC utilities
+https://downloads.synadia.com/ngs/signup
+
+- NGS depends on two command line tools. The first, called nsc, is an open source tool used to create and edit configurations for the NATS.io account security system. This is the same system used by NGS. The second, called ngs, is used to manage your billing account with Synadia.
+The installation process is straightforward. Open up a command prompt and type the following:
+```
+$ curl https://downloads.synadia.com/ngs/install.py -sSf | python
+```
+
+- This will install the nsc and ngs utilities into ~/.nsc/bin. You can get usage help anytime by executing ngs -h or nsc -h, or search the nsc documentation.
+Next we need to tell NSC about Synadia, create an account and user and deploy the account to the NGS servers. To create a new account named "First" (you can use any name here) and deploy it to NGS, open a command prompt and type:
+```
+$ nsc init -o synadia -n First
+```
+
+- Verify generated env, jwt, account, user and keys
+```
+nsc env
+
+nsc describe jwt  -f ~/.local/share/nats/nsc/stores/synadia/synadia.jwt
+
+nsc describe account    or    nsc list accounts
+
+nsc describe user    or    nsc list users
+
+tree ~/.local/share/nats/nsc/keys/keys    or    nsc list keys 
+        (Where Account Key: nsc list keys -a)
+        (Where User Key: nsc list keys -u)
+
+ 
+ngs status -d ~/.local/share/nats/nsc/stores/synadia
+ > Other... (ENTER)
+ path to signer account nkey or nkey  ~/.local/share/nats/nsc/keys/keys/A/{KEY_DIR}/KEY_NAME.nk
+```
+
+- Switch to Developer Plan
+```
+ngs edit -d ~/.local/share/nats/nsc/stores/synadia/
+ > Other... (ENTER)
+ path to signer account nkey or nkey  ~/.local/share/nats/nsc/keys/keys/A/{KEY_DIR}/KEY_NAME.nk
+ > Developer $0.00/month
+ ? Email
+ > OK
+```
+
+## Installation NATS Server
+https://nats.io/download/
+
+- Create the Server Config
+```
+nsc generate config --mem-resolver --config-file {DIR_PATH}/nsc-server.conf 
+```
+
+- Start server
+```
+nats-server -c {DIR_PATH}/nsc-server.conf 
+```
