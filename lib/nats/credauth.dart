@@ -47,13 +47,13 @@ class CredsAuthenticator extends BaseAuthenticator {
 
   @override
   BaseAuthenticator buildAuthenticator(Map<String, dynamic> opts) {
-    auth = (String nonce) {
+    auth = (String? nonce) {
       if (opts['jwt'] == null || opts['seed'] == null) {
         throw NatsError.errorForCode(ErrorCode.ClearedPair);
       }
       final sd = _decodeSeed(opts['seed']);
       final kp = _signKeyPairFromSeed(sd);
-      final challenge = Uint8List.fromList(utf8.encode(nonce));
+      final challenge = Uint8List.fromList(utf8.encode(nonce ?? ''));
       final signedMsg = Int32List(SignLength.Signature + challenge.length);
       _sign(signedMsg, challenge, challenge.length, kp['secretKey']);
       final sig = Uint8List(SignLength.Signature);

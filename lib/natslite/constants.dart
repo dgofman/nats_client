@@ -46,14 +46,14 @@ class SignLength {
 
 class BaseAuthenticator {
 
-  Map<String, dynamic> Function(String nonce)? auth;
+  Map<String, dynamic> Function(String? nonce)? auth;
 
   BaseAuthenticator buildAuthenticator(Map<String, dynamic> opts) {
-    auth = (String nonce) => opts;
+    auth = (String? nonce) => opts;
     return this;
   }
 
-  Map getConnect(String nonce, Map<String, dynamic> opts) {
+  Map getConnect(String? nonce, Map<String, dynamic> opts) {
     final conn = auth!(nonce);
     conn.addAll({
       'protocol': 1,
