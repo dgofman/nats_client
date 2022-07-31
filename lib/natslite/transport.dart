@@ -358,14 +358,17 @@ class WsTransport {
           }
         }
         start = i + 2;
-        Subscription s = subs[sid]!;
-        if (totalBytes > 0 && s.callback is SubCallback) {
-          if (start + totalBytes < data.length) {
-            s.callback!(Result(data.sublist(start, start + totalBytes), s, subject));
-          } else {
-            _openSubscription = OpenSubscription(s, subject, totalBytes);
-            if (data.length > start) {
-              _openSubscription!.buffer.addAll(data.sublist(start));
+        if (subs != null && subs[sid] != null) {
+          Subscription s = subs[sid]!;
+          if (totalBytes > 0 && s.callback is SubCallback) {
+            if (start + totalBytes < data.length) {
+              s.callback!(
+                  Result(data.sublist(start, start + totalBytes), s, subject));
+            } else {
+              _openSubscription = OpenSubscription(s, subject, totalBytes);
+              if (data.length > start) {
+                _openSubscription!.buffer.addAll(data.sublist(start));
+              }
             }
           }
         }
