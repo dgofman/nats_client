@@ -115,7 +115,7 @@ class _MyHomePageState extends State<MyHomePage> {
     widget.nats.subscribe('user_a.>', (Result result) {
       log(utf8.decode(result.data));
       setState(() {
-        streamText += utf8.decode(result.data) + '\n';
+        streamText += '${utf8.decode(result.data)}\n';
       });
     });
     super.initState();

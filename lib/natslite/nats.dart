@@ -78,7 +78,7 @@ class Nats {
   late BaseTLS? _tls;
 
   Nats({this.opts = const {},
-    Function(Status status, dynamic error)? statusCallback,  BaseAuthenticator? authenticator, bool debug = false}) {
+    Function(Status status, dynamic error) ? statusCallback,  BaseAuthenticator? authenticator, bool debug = false}) {
     opts.putIfAbsent('debug', () => debug);
     opts.putIfAbsent('maxPingOut', () => 2);
     opts.putIfAbsent('maxReconnectAttempts', () => 10);
@@ -92,7 +92,7 @@ class Nats {
     opts.putIfAbsent('tls', () => null);
     opts.putIfAbsent('verbose', () => false);
     opts.putIfAbsent('waitOnFirstConnect', () => false);
-    statusCallback ??= (_data, _isError) {};
+    statusCallback ??= (data, isError) {};
     authenticator ??= BaseAuthenticator();
 
     if (opts['tls'] != null) {  //tls = true or tls is TlsTrustedClient

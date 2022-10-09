@@ -96,8 +96,8 @@ class WsTransport {
     return s;
   }
 
-  void unsubscribe(Subscription s, bool delay) {
-    if (subs[s.sid] != null) {
+  void unsubscribe(Subscription? s, bool delay) {
+    if (s != null && subs[s.sid] != null) {
       String proto = 'UNSUB ${s.sid}\r\n';
       _delayCommand(utf8.encode(proto), delay);
       debug('Nats::unsubscribe($delay) - $proto');
@@ -358,7 +358,7 @@ class WsTransport {
           }
         }
         start = i + 2;
-        if (subs != null && subs[sid] != null) {
+        if (subs[sid] != null) {
         Subscription s = subs[sid]!;
         if (totalBytes > 0 && s.callback is SubCallback) {
           if (start + totalBytes < data.length) {

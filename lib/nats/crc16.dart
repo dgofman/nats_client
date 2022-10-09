@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+// ignore: library_private_types_in_public_api
 const _Crc16 crc16 = _Crc16();
 
 class _Crc16 {
