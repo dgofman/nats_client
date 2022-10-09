@@ -358,6 +358,7 @@ class WsTransport {
           }
         }
         start = i + 2;
+        if (subs != null && subs[sid] != null) {
         Subscription s = subs[sid]!;
         if (totalBytes > 0 && s.callback is SubCallback) {
           if (start + totalBytes < data.length) {
@@ -368,6 +369,7 @@ class WsTransport {
               _openSubscription!.buffer.addAll(data.sublist(start));
             }
           }
+        }
         }
         break;
     }
