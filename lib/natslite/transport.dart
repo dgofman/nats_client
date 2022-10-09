@@ -19,7 +19,6 @@ import 'dart:developer';
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -49,7 +48,7 @@ class WsTransport {
   };
 
   final subs = <int, Subscription>{};
-  final BaseAuthenticator auth;
+  final BaseAuthenticator _auth;
   final Map<String, dynamic> _opts;
   final Function(Status, dynamic error) _statusCallback;
   late Completer _pongCompleter;
@@ -68,12 +67,16 @@ class WsTransport {
   // ignore: cancel_subscriptions
   StreamSubscription? _subscription;
 
-  WsTransport(this._opts, this.auth, this._statusCallback) {
+  WsTransport(this._opts, this._auth, this._statusCallback) {
     _pongCompleter = Completer.sync();
     _pingInterval = Duration(milliseconds: _opts['pingInterval']);
     _maxReconnectAttempts = _opts['maxReconnectAttempts'];
     _reconnectTimeWait = _opts['reconnectTimeWait'];
     _reconnectAttempts = 0;
+  }
+
+  BaseAuthenticator get authenticator {
+    return _auth;
   }
 
   Subscription subscribe(String subject, SubCallback? callback, String? queue, bool delay) {
@@ -173,8 +176,9 @@ class WsTransport {
     if (_subscription != null) {
       _subscription!.cancel();
     }
+    Uri serverURI = Uri.parse(currentServer);
     if (kIsWeb) {
-      _socket = WebSocketChannel.connect(Uri.parse(currentServer));
+      _socket = WebSocketChannel.connect(serverURI);
     } else {
       _socket = IOWebSocketChannel.connect(currentServer, pingInterval: _pingInterval);
     }
@@ -210,7 +214,7 @@ class WsTransport {
             checkOptions(info, _opts);
             _peeked = true;
 
-            final conn = auth.getConnect(info['nonce'], _opts);
+            final conn = _auth.getConnect(info['nonce'], serverURI, _opts);
             final cs = json.encode(conn);
             send(utf8.encode('CONNECT $cs$_CR_LF'));
             send(cmdMap[_Command.PING]);
@@ -274,8 +278,7 @@ class WsTransport {
 
   void checkOptions(Map info, Map opts) {
     var proto = info['proto'],
-        headers = info['headers'],
-        tlsRequired = info['tls_required'];
+        headers = info['headers'];
     if ((proto == null || proto < 1) && opts['noEcho']) {
       throw NatsError('noEcho', ErrorCode.SERVER_OPTION_NA);
     }
@@ -291,9 +294,6 @@ class WsTransport {
     if (!headers && opts['noResponders']) {
       throw NatsError(
           'noResponders - requires headers', ErrorCode.SERVER_OPTION_NA);
-    }
-    if (opts['tls'] != null && !tlsRequired) {
-      throw NatsError('tls', ErrorCode.SERVER_OPTION_NA);
     }
   }
 

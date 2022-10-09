@@ -13,11 +13,16 @@
  * limitations under the License.
  */
 
+import './sign.dart';
 import '../natslite/constants.dart';
 
 class JwtAuthenticator extends BaseAuthenticator {
 
-  static BaseAuthenticator create(String token) {
-    return JwtAuthenticator().buildAuthenticator({'jwt': token, 'nkey': '', 'sig': ''});
+  JwtAuthenticator(String jwt, String seed) : super() {
+    additionalOptions['jwt'] = jwt;
+    auth = (String? nonce) {
+      additionalOptions['sig'] = encodeSeed(seed, nonce)['sig'];
+      return additionalOptions;
+    };
   }
 }

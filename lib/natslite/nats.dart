@@ -75,6 +75,7 @@ class Nats {
   final Map<String, dynamic> opts;
 
   late WsTransport _transport;
+  late BaseTLS? _tls;
 
   Nats({this.opts = const {},
     Function(Status status, dynamic error)? statusCallback,  BaseAuthenticator? authenticator, bool debug = false}) {
@@ -92,22 +93,22 @@ class Nats {
     opts.putIfAbsent('verbose', () => false);
     opts.putIfAbsent('waitOnFirstConnect', () => false);
     statusCallback ??= (_data, _isError) {};
-    if (authenticator == null) {
-      if (opts['user'] != null && opts['token'] != null) {
-        throw NatsError.errorForCode(ErrorCode.BAD_AUTHENTICATION);
-      }
-      if (opts['token'] != null) {
-        authenticator = BaseAuthenticator().buildAuthenticator(
-            {'jwt': opts['token'], 'nkey': '', 'sig': ''});
+    authenticator ??= BaseAuthenticator();
+
+    if (opts['tls'] != null) {  //tls = true or tls is TlsTrustedClient
+      if (opts['tls'] is! BaseTLS) {
+        _tls = BaseTLS();
       } else {
-        authenticator = BaseAuthenticator().buildAuthenticator(opts);
+        _tls = opts['tls'];
       }
+    } else {
+      _tls = null;
     }
     _transport = WsTransport(opts, authenticator, statusCallback);
   }
 
   BaseAuthenticator get authenticator {
-    return _transport.auth;
+    return _transport.authenticator;
   }
 
   Subscription subscribe(String subject, [SubCallback? callback, String? queue, bool delay=true]) {
@@ -211,6 +212,7 @@ class Nats {
         servers.add(server);
       }
     }
+    await _tls?.init();
     await _transport.connect(servers);
     return Future.value(this);
   }

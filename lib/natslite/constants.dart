@@ -15,8 +15,10 @@
  * limitations under the License.
  */
 
-const VERSION = '1.1.0-4';
-const LANG = 'nats.ws';
+import 'dart:io';
+
+const VERSION = '2.0';
+const LANG = 'dg-nats-client';
 
 enum Status {
   OK_MSG,
@@ -44,21 +46,35 @@ class SignLength {
   static const Signature = 64;
 }
 
-class BaseAuthenticator {
-
-  Map<String, dynamic> Function(String? nonce)? auth;
-
-  BaseAuthenticator buildAuthenticator(Map<String, dynamic> opts) {
-    auth = (String? nonce) => opts;
-    return this;
+class BaseTLS extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)..
+    badCertificateCallback = (truststore, String host, int port) => true;
   }
 
-  Map getConnect(String? nonce, Map<String, dynamic> opts) {
+  Future<void> init() async {
+    HttpOverrides.global = this;
+  }
+}
+
+class BaseAuthenticator {
+
+  final Map<String, dynamic> additionalOptions = {};
+  Map<String, dynamic> Function(String? nonce)? auth;
+
+  BaseAuthenticator() {
+    auth = (String? nonce) => additionalOptions;
+  }
+
+  BaseAuthenticator buildAuthenticator() => this;
+
+  Map getConnect(String? nonce, Uri serverURI, Map<String, dynamic> opts) {
     final conn = auth!(nonce);
     conn.addAll({
       'protocol': 1,
       'version': VERSION,
-      'lang': LANG,
+      'lang': '$LANG.${serverURI.scheme}',
       'verbose': opts['verbose'] ?? false,
       'pedantic': opts['pedantic'] ?? false,
       'no_responders': opts['noResponders'] ?? true,
@@ -66,7 +82,7 @@ class BaseAuthenticator {
     });
     if (opts['noEcho']) conn['echo'] =  opts['noEcho'];
     if (opts['name'] != null) conn['name'] =  opts['name'];
-    if (opts['tls'] != null) conn['tls_required'] =  opts['tls'];
+    if (opts['tls'] != null) conn['tls_required'] =  true;
     return conn;
   }
 }

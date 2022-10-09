@@ -13,11 +13,15 @@
  * limitations under the License.
  */
 
-import './natslite/constants.dart';
+import './sign.dart';
+import '../natslite/constants.dart';
 
-class UserAuthenticator extends BaseAuthenticator {
+class NKeyAuthenticator extends BaseAuthenticator {
 
-  static BaseAuthenticator create(String user, String pass) {
-    return UserAuthenticator().buildAuthenticator({'user': user, 'pass': pass, 'nkey': '', 'sig': ''});
+  NKeyAuthenticator(String seed) {
+    auth = (String? nonce) {
+      additionalOptions.addAll(encodeSeed(seed, nonce));
+      return additionalOptions;
+    };
   }
 }

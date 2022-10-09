@@ -38,7 +38,6 @@ class ErrorCode {
   static const InvalidSeed = ErrorCode('InvalidSeed', 'nkeys: invalid seed');
   static const InvalidEncoding = ErrorCode('InvalidEncoding', 'nkeys: invalid encoded key');
   static const InvalidChecksum = ErrorCode('InvalidChecksum', 'nkeys: invalid checksum');
-  static const ClearedPair = ErrorCode('ClearedPair', 'nkeys: pair is cleared');
   static const BAD_AUTHENTICATION = ErrorCode('BAD_AUTHENTICATION', 'Invalid authentication payload');
   static const BAD_CREDS = ErrorCode('BAD_CREDS', 'Invalid credentials');
   static const BAD_PAYLOAD = ErrorCode('BAD_PAYLOAD', 'Invalid payload');

@@ -17,7 +17,14 @@ import '../natslite/constants.dart';
 
 class UserAuthenticator extends BaseAuthenticator {
 
-  static BaseAuthenticator create(String user, String pass) {
-    return UserAuthenticator().buildAuthenticator({'user': user, 'pass': pass, 'nkey': '', 'sig': ''});
+  UserAuthenticator(String user, [String? password]): super() {
+    if (password == null) {
+      additionalOptions['auth_token'] = user;
+    } else {
+      additionalOptions.addAll({
+        'user': user,
+        'pass': password
+      });
+    }
   }
 }

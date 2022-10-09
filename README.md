@@ -76,7 +76,7 @@ import 'package:nats_client/natslite/subscription.dart';
   ...
   final conn = await Nats.connect(
       opts: { 'servers': server },
-      authenticator: JwtAuthenticator.create(token),
+      authenticator: JwtAuthenticator(token),
      ...
 ```
 
@@ -86,7 +86,7 @@ import 'package:nats_client/natslite/subscription.dart';
   ...
   final conn = await Nats.connect(
      opts: { 'servers': server },
-     authenticator: UserAuthenticator.create(username, password),
+     authenticator: UserAuthenticator(username, password),
      ...
 ```
 
@@ -95,7 +95,7 @@ import 'package:nats_client/natslite/subscription.dart';
   import 'package:nats_client/nats/credauth.dart';
   final conn = await Nats.connect(
      opts: { 'servers': server },
-     authenticator: CredsAuthenticator.create(certificate),
+     authenticator: CredsAuthenticator(certificate),
      ...
 ```
 
