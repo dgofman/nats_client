@@ -15,6 +15,7 @@ export NKEY_OPERATOR="*"  # * - find first operator
 export NKEY_USER="*"      # * - find first account
 export CERT_PASSWORD=PASSWORD # password for p12 certificate
 
+# It is recommended to hardcode the external IP address
 export ROUTE_IP=`ip route get 8.8.8.8 | awk '{print $NF; exit}'`
 
 export HOSTS=`cat << EOF

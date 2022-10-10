@@ -168,3 +168,45 @@ websocket {
   no_tls: true
 }
 EOF
+
+export ACCOUNT_ID=`nsc describe account SYS -F sub | xargs`
+export OPERATOR_NAME=`ls $HOME/.nsc/nats/ | head -n 1`
+export NKEY_OPERATOR_FILE=`ls $HOME/.nsc/nats/$OPERATOR_NAME/$OPERATOR_NAME.jwt | head -n 1`
+cat > config.conf <<- EOF
+# https://docs.nats.io/using-nats/developer/connecting/creds
+#
+# Start the server
+# nats-server -c config.conf
+#
+# nats_client - Flutter Library
+#
+# import 'package:nats_client/nats/credauth.dart';
+# const creds_token = '''
+#  -----BEGIN NATS USER JWT-----
+#  eyJ0eXAiOiJKV1QiLCJhbGciOiJlZDI1NTXBA...
+#  ------END NATS USER JWT------
+#
+#  ************************* IMPORTANT *************************
+#  NKEY Seed printed below can be used to sign and prove identity.
+#  NKEYs are sensitive and should be treated as secrets.
+#
+#  -----BEGIN USER NKEY SEED-----
+#  SUAD5DCLWCCHMYNJ6XFI6P5GX2VV7QN7HE5X74OBOCM2XZRSURLHN6EZXA
+#  ------END USER NKEY SEED------
+#
+#  *************************************************************
+# ''';
+# final authenticator = CredsAuthenticator(creds_token);
+#
+
+port: 4222
+
+operator: "$NKEY_OPERATOR_FILE"
+system_account: "$ACCOUNT_ID"
+resolver: URL(http://localhost:9090/jwt/v1/accounts/)
+
+websocket {
+  port: 8443
+  no_tls: true
+}
+EOF

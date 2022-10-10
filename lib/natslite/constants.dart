@@ -80,7 +80,7 @@ class BaseAuthenticator {
       'no_responders': opts['noResponders'] ?? true,
       'headers': opts['headers'] ?? true
     });
-    if (opts['noEcho']) conn['echo'] =  opts['noEcho'];
+    if (!opts['noEcho']) conn['echo'] =  !opts['noEcho'];
     if (opts['name'] != null) conn['name'] =  opts['name'];
     if (opts['tls'] != null) conn['tls_required'] =  true;
     return conn;

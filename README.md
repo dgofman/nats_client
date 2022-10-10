@@ -2,10 +2,13 @@
 
 https://nats.io/
 
-NATS is an open-source messaging system (sometimes called message-oriented middleware). 
-The NATS server is written in the Go programming language. 
-Client libraries to interface with the server are available for dozens of major programming languages. 
-The core design principles of NATS are performance, scalability, and ease of use.
+NATS is an open-source messaging system (sometimes called message-oriented middleware).
+The NATS server is written in the Go programming language.
+The NATS client provides communication between client devices such as Android, iPhone, iPad,
+Web browsers, and desktop applications with the server using the NATS exchange system.
+It supports secure layer protocol using SSL/TLS and [CA certificates](https://github.com/dgofman/nats_client/blob/master/test/tls.sh).
+
+
 
 # Initialize Project
 
@@ -14,7 +17,7 @@ flutter create --project-name nats_client -i objc -a java -t app .
 
 ## Implementation
 
- - Using NatsLight library (jwt bearer token)
+- Using NatsLight library (jwt bearer token)
  ```
 import 'dart:convert';
 
@@ -69,7 +72,10 @@ import 'package:nats_client/natslite/subscription.dart';
 
 
 
- - Using Nats Authenticators
+## Using Nats Authenticators
+[Demo](https://github.com/dgofman/nats_client/blob/master/test/demo.dart)
+
+[JwtAuthenticator](https://github.com/dgofman/nats_client/blob/master/test/setup.sh#L41)
  ```
   import 'package:nats_client/natslite/nats.dart';
   import 'package:nats_client/nats/jwtauth.dart';
@@ -80,6 +86,18 @@ import 'package:nats_client/natslite/subscription.dart';
      ...
 ```
 
+[UserAuthenticator](https://github.com/dgofman/nats_client/blob/master/test/setup.sh#L14)
+ ```
+  import 'package:nats_client/natslite/nats.dart';
+  import 'package:nats_client/nats/userauth.dart';
+  ...
+  final conn = await Nats.connect(
+     opts: { 'servers': server },
+     authenticator: UserAuthenticator(login_auth_token),
+     ...
+```
+
+[UserAuthenticator](https://github.com/dgofman/nats_client/blob/master/test/setup.sh#L66)
  ```
   import 'package:nats_client/natslite/nats.dart';
   import 'package:nats_client/nats/userauth.dart';
@@ -90,6 +108,18 @@ import 'package:nats_client/natslite/subscription.dart';
      ...
 ```
 
+[NKeyAuthenticator](https://github.com/dgofman/nats_client/blob/master/test/setup.sh#L66)
+ ```
+  import 'package:nats_client/natslite/nats.dart';
+  import 'package:nats_client/nats/userauth.dart';
+  ...
+  final conn = await Nats.connect(
+     opts: { 'servers': server },
+     authenticator: NKeyAuthenticator('SUAOMTSAOJJNB5TIPMYC5W2OMXDS6ST3Z3PDLDJHCMTGV7SKWVPDL2OU3Y'),
+     ...
+```
+
+[CredsAuthenticator](https://github.com/dgofman/nats_client/blob/master/test/setup.sh#L199)
  ```
   import 'package:nats_client/natslite/nats.dart';
   import 'package:nats_client/nats/credauth.dart';
@@ -103,13 +133,13 @@ import 'package:nats_client/natslite/subscription.dart';
 https://downloads.synadia.com/ngs/signup
 
 - NGS depends on two command line tools. The first, called nsc, is an open source tool used to create and edit configurations for the NATS.io account security system. This is the same system used by NGS. The second, called ngs, is used to manage your billing account with Synadia.
-The installation process is straightforward. Open up a command prompt and type the following:
+  The installation process is straightforward. Open up a command prompt and type the following:
 ```
 $ curl https://downloads.synadia.com/ngs/install.py -sSf | python
 ```
 
 - This will install the nsc and ngs utilities into ~/.nsc/bin. You can get usage help anytime by executing ngs -h or nsc -h, or search the nsc documentation.
-Next we need to tell NSC about Synadia, create an account and user and deploy the account to the NGS servers. To create a new account named "First" (you can use any name here) and deploy it to NGS, open a command prompt and type:
+  Next we need to tell NSC about Synadia, create an account and user and deploy the account to the NGS servers. To create a new account named "First" (you can use any name here) and deploy it to NGS, open a command prompt and type:
 ```
 $ nsc init -o synadia -n First
 ```

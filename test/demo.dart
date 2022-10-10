@@ -10,13 +10,33 @@ import 'package:nats_client/nats/tls.dart';
 import 'package:nats_client/nats/userauth.dart';
 import 'package:nats_client/nats/nkeyauth.dart';
 import 'package:nats_client/nats/jwtauth.dart';
+import 'package:nats_client/nats/credauth.dart';
 
 /*
+ * Update the package name android/app/build.gradle
+ *
+ * defaultConfig {
+        applicationId "com.YOURDOMAIN.APPNAME"
+ *
+ * Update all your device config files. Example Android OS:
+ *
+ * android/app/src/main/java/com/example/nats_client/MainActivity.java
+ *
+ * package com.YOURDOMAIN.APPNAME;
+
+  import io.flutter.embedding.android.FlutterActivity;
+
+  public class MainActivity extends FlutterActivity {
+  }
+ *
  * android/app/src/main/AndroidManifest.xml
+ * android/app/src/debug/AndroidManifest.xml
+ * android/app/src/profile/AndroidManifest.xml
+ *
+ * <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.YOURDOMAIN.APPNAME">
  *
  *   <uses-permission android:name="android.permission.INTERNET" />
- *   <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS"
- *   tools:ignore="ProtectedPermissions" />
  *
  * SSL/TLS support
  * Create a folder /assets and copy your certificate *.p12
@@ -24,6 +44,9 @@ import 'package:nats_client/nats/jwtauth.dart';
     flutter:
       resources:
       -assets/cert.p12
+ *
+ * Compile and run:
+ * flutter run --release -t test/demo.dart
  */
 
 void main() async {
@@ -57,6 +80,23 @@ void main() async {
     case 4:
       //nats-server -c user_nkey_pwd.conf -DV (nkey)
       authenticator = NKeyAuthenticator('SUAOMTSAOJJNB5TIPMYC5W2OMXDS6ST3Z3PDLDJHCMTGV7SKWVPDL2OU3Y');
+      break;
+    case 5:
+      //nats-server -c config.conf -DV
+      const creds_token = '''-----BEGIN NATS USER JWT-----
+  eyJ0eXAiOiJKV1QiLCJhbGciOiJlZDI1NTXBA...
+  ------END NATS USER JWT------
+
+  ************************* IMPORTANT *************************
+  NKEY Seed printed below can be used to sign and prove identity.
+  NKEYs are sensitive and should be treated as secrets.
+
+  -----BEGIN USER NKEY SEED-----
+  SUAD5DCLWCCHMYNJ6XFI6P5GX2VV7QN7HE5X74OBOCM2XZRSURLHN6EZXA
+  ------END USER NKEY SEED------
+
+  *************************************************************''';
+      authenticator = CredsAuthenticator(creds_token);
       break;
   }
 
