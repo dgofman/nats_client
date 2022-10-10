@@ -108,7 +108,7 @@ import 'package:nats_client/natslite/subscription.dart';
      ...
 ```
 
-[NKeyAuthenticator](https://github.com/dgofman/nats_client/blob/master/test/setup.sh#L66)
+[NKeyAuthenticator](https://github.com/dgofman/nats_client/blob/master/test/setup.sh#L149)
  ```
   import 'package:nats_client/natslite/nats.dart';
   import 'package:nats_client/nats/userauth.dart';
