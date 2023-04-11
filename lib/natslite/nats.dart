@@ -194,12 +194,12 @@ class Nats {
     if (server == null) {
       servers.add('$_DEFAULT_HOST:$_DEFAULT_PORT');
     } else {
-      if (server is List<String>) {
-        for (String server in server) {
-          servers.add(server);
+      if (server is List<String?>) {
+        for (String? server in server) {
+          servers.add(server.toString());
         }
       } else {
-        servers.add(server);
+        servers.add(server.toString());
       }
     }
     await _transport.connect(servers);

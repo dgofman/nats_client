@@ -190,7 +190,7 @@ class WsTransport {
       if (kIsWeb) {
         HttpOverrides.global = tls;
       } else {
-        httpClient = tls.createHttpClient(SecurityContext.defaultContext);
+        httpClient = tls.createHttpClient(SecurityContext());
       }
     }
 
