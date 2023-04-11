@@ -27,7 +27,7 @@ dependencies:
   flutter:
     sdk: flutter
   base32: ^2.0.0
-  web_socket_channel: ^2.1.0
+  web_socket_channel: ^2.4.0
 
 
   # The following adds the Cupertino Icons font to your application.
