@@ -15,28 +15,20 @@
 
 import 'dart:io';
 import 'package:flutter/services.dart';
-
-import '../natslite/constants.dart';
+import 'package:nats_client/natslite/constants.dart';
 
 class TlsTrustedClient extends BaseTLS {
   final String? password;
-  final String p12CertAssetPath;
-  TlsTrustedClient(this.p12CertAssetPath, [this.password = '']);
-
-  ByteData? clientCert;
-
-  @override
-  Future<void> init() async {
-    super.init();
-    clientCert = await rootBundle.load(p12CertAssetPath);
-  }
+  final ByteData? clientCert;
+  TlsTrustedClient(this.clientCert, [this.password = '']);
 
   @override
   HttpClient createHttpClient(SecurityContext? context) {
-    if (context == null) {
-      context = SecurityContext.defaultContext;
-      context.setTrustedCertificatesBytes(clientCert!.buffer.asUint8List(), password: password);
-    }
-    return super.createHttpClient(context);
+    context?.setTrustedCertificatesBytes(clientCert!.buffer.asUint8List(), password: password);
+    return HttpClient(context: context);
+  }
+
+  static Future<ByteData> load(String p12CertAssetPath) async {
+    return rootBundle.load(p12CertAssetPath);
   }
 }

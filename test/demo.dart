@@ -56,7 +56,7 @@ void main() async {
   const authType = 0;
   const server = 'ws://127.0.0.1:8443';
   if (server.startsWith('wss')) {
-    tls = TlsTrustedClient('assets/cert.p12', 'PASSWORD');
+    tls = TlsTrustedClient(await TlsTrustedClient.load('assets/cert.p12'), 'PASSWORD');
   }
 
   BaseAuthenticator? authenticator;
@@ -83,7 +83,7 @@ void main() async {
       break;
     case 5:
       //nats-server -c config.conf -DV
-      const creds_token = '''-----BEGIN NATS USER JWT-----
+      const credsToken = '''-----BEGIN NATS USER JWT-----
   eyJ0eXAiOiJKV1QiLCJhbGciOiJlZDI1NTXBA...
   ------END NATS USER JWT------
 
@@ -96,7 +96,7 @@ void main() async {
   ------END USER NKEY SEED------
 
   *************************************************************''';
-      authenticator = CredsAuthenticator(creds_token);
+      authenticator = CredsAuthenticator(credsToken);
       break;
   }
 
@@ -152,7 +152,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    widget.nats.subscribe('user_a.>', (Result result) {
+    widget.nats.subscribe('user_a.>', (SubscriptionResult result) {
       log(utf8.decode(result.data));
       setState(() {
         streamText += '${utf8.decode(result.data)}\n';

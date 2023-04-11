@@ -19,6 +19,7 @@ import 'dart:developer';
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -110,7 +111,7 @@ class WsTransport {
     List<int>? headers;
     if (options['headers'] is Map) {
       List<String> build = ['NATS/1.0'];
-      options['headers'].forEach((key, value)  {
+      options['headers'].forEach((key, value) {
         build.add('$key: $value');
       });
       build.add('\r\n');
@@ -177,10 +178,33 @@ class WsTransport {
       _subscription!.cancel();
     }
     Uri serverURI = Uri.parse(currentServer);
+
+    HttpClient? httpClient;
+    if (_opts['tls'] != null) {  //tls = true or tls is TlsTrustedClient
+      BaseTLS tls;
+      if (_opts['tls'] is! BaseTLS) {
+        tls = BaseTLS();
+      } else {
+        tls = _opts['tls'];
+      }
+      if (kIsWeb) {
+        HttpOverrides.global = tls;
+      } else {
+        httpClient = tls.createHttpClient(SecurityContext.defaultContext);
+      }
+    }
+
     if (kIsWeb) {
       _socket = WebSocketChannel.connect(serverURI);
     } else {
-      _socket = IOWebSocketChannel.connect(currentServer, pingInterval: _pingInterval);
+      //_socket = IOWebSocketChannel.connect(currentServer, pingInterval: _pingInterval);
+      WebSocket socket = await WebSocket.connect(serverURI.toString(), customClient: httpClient).then((webSocket) {
+        webSocket.pingInterval = _pingInterval;
+        return webSocket;
+      }).catchError(
+            (Object error) => throw WebSocketChannelException.from(error),
+      );
+      _socket = IOWebSocketChannel(socket);
     }
     _outbound.clear();
     _subscription = _socket!.stream.listen((data) async {
@@ -188,8 +212,9 @@ class WsTransport {
       if (_openSubscription != null) {
         final o = _openSubscription!;
         o.buffer.addAll(data);
-        if (o.buffer.length >= o.totalBytes + 2) { // end message [_CR, _LF]
-          o.subscription.callback!(Result(o.buffer.sublist(0, o.totalBytes), o.subscription, o.subject));
+        if (o.buffer.length >= o.totalBytes + 2) {
+          // end message [_CR, _LF]
+          o.subscription.callback!(SubscriptionResult(o.buffer.sublist(0, o.totalBytes), o.subscription, o.subject));
           _openSubscription = null;
         }
         return;
@@ -277,8 +302,7 @@ class WsTransport {
   }
 
   void checkOptions(Map info, Map opts) {
-    var proto = info['proto'],
-        headers = info['headers'];
+    var proto = info['proto'], headers = info['headers'];
     if ((proto == null || proto < 1) && opts['noEcho']) {
       throw NatsError('noEcho', ErrorCode.SERVER_OPTION_NA);
     }
@@ -292,8 +316,7 @@ class WsTransport {
       throw NatsError('noResponders', ErrorCode.SERVER_OPTION_NA);
     }
     if (!headers && opts['noResponders']) {
-      throw NatsError(
-          'noResponders - requires headers', ErrorCode.SERVER_OPTION_NA);
+      throw NatsError('noResponders - requires headers', ErrorCode.SERVER_OPTION_NA);
     }
   }
 
@@ -359,17 +382,17 @@ class WsTransport {
         }
         start = i + 2;
         if (subs[sid] != null) {
-        Subscription s = subs[sid]!;
-        if (totalBytes > 0 && s.callback is SubCallback) {
-          if (start + totalBytes < data.length) {
-            s.callback!(Result(data.sublist(start, start + totalBytes), s, subject));
-          } else {
-            _openSubscription = OpenSubscription(s, subject, totalBytes);
-            if (data.length > start) {
-              _openSubscription!.buffer.addAll(data.sublist(start));
+          Subscription s = subs[sid]!;
+          if (totalBytes > 0 && s.callback is SubCallback) {
+            if (start + totalBytes < data.length) {
+              s.callback!(SubscriptionResult(data.sublist(start, start + totalBytes), s, subject));
+            } else {
+              _openSubscription = OpenSubscription(s, subject, totalBytes);
+              if (data.length > start) {
+                _openSubscription!.buffer.addAll(data.sublist(start));
+              }
             }
           }
-        }
         }
         break;
     }
@@ -401,7 +424,7 @@ class WsTransport {
       return -1;
     }
     int n = 0;
-    for(int i = 0; i < a.length; i++){
+    for (int i = 0; i < a.length; i++) {
       if (a[i] < 48 || a[i] > 57) {
         return -1;
       }
@@ -427,9 +450,7 @@ class WsTransport {
         log('NATS::$prefix IS NULL');
         return;
       }
-      return log('NATS::$prefix $msg'
-          .replaceAll(RegExp('\n'), '␍')
-          .replaceAll(RegExp('\r'), '␊'));
+      return log('NATS::$prefix $msg'.replaceAll(RegExp('\n'), '␍').replaceAll(RegExp('\r'), '␊'));
     }
   }
 }

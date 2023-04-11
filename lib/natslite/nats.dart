@@ -75,7 +75,6 @@ class Nats {
   final Map<String, dynamic> opts;
 
   late WsTransport _transport;
-  late BaseTLS? _tls;
 
   Nats({this.opts = const {},
     Function(Status status, dynamic error) ? statusCallback,  BaseAuthenticator? authenticator, bool debug = false}) {
@@ -95,15 +94,6 @@ class Nats {
     statusCallback ??= (data, isError) {};
     authenticator ??= BaseAuthenticator();
 
-    if (opts['tls'] != null) {  //tls = true or tls is TlsTrustedClient
-      if (opts['tls'] is! BaseTLS) {
-        _tls = BaseTLS();
-      } else {
-        _tls = opts['tls'];
-      }
-    } else {
-      _tls = null;
-    }
     _transport = WsTransport(opts, authenticator, statusCallback);
   }
 
@@ -212,7 +202,6 @@ class Nats {
         servers.add(server);
       }
     }
-    await _tls?.init();
     await _transport.connect(servers);
     return Future.value(this);
   }

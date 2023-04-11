@@ -49,12 +49,8 @@ class SignLength {
 class BaseTLS extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {
-    return super.createHttpClient(context)..
-    badCertificateCallback = (truststore, String host, int port) => true;
-  }
-
-  Future<void> init() async {
-    HttpOverrides.global = this;
+    return super.createHttpClient(context)
+      ..badCertificateCallback = ((X509Certificate cert, String host, int port) => true);
   }
 }
 

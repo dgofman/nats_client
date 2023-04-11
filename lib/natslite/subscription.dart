@@ -17,17 +17,17 @@ import 'dart:convert';
 
 import './transport.dart';
 
-class Result {
+class SubscriptionResult {
   final List<int> data;
   final Subscription sub;
   final String? subject;
-  Result(this.data, this.sub, this.subject);
+  SubscriptionResult(this.data, this.sub, this.subject);
 
   dynamic get decode => utf8.decode(data);
-  dynamic get json => json.decode(decode);
+  dynamic get jsonData => json.decode(decode);
 }
 
-typedef SubCallback = Null Function(Result result);
+typedef SubCallback = Null Function(SubscriptionResult result);
 
 class Subscription {
   final WsTransport transport;
