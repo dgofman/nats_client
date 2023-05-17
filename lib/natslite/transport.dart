@@ -324,15 +324,16 @@ class WsTransport {
     _Command? command;
     for (_Command cmd in cmdMap.keys) {
       Uint8List buf = Uint8List.fromList(cmdMap[cmd]!);
-      outer:
+      bool isExist = true;
       if (data.length >= buf.length) {
         for (int i = 0; i < buf.length; i++) {
           if (buf[i] != data[i]) {
-            continue outer;
+            isExist = false;
+            break;
           }
         }
         command = cmd;
-        break;
+        if (isExist) break;
       }
     }
     switch (command ?? '') {
