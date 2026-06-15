@@ -130,7 +130,7 @@ import 'package:nats_client/natslite/subscription.dart';
 ```
 
 ## Installation of the NGS and NSC utilities
-https://downloads.synadia.com/ngs/signup
+[https://downloads.synadia.com/ngs/signup](https://purchases.synadia.com/login)
 
 - NGS depends on two command line tools. The first, called nsc, is an open source tool used to create and edit configurations for the NATS.io account security system. This is the same system used by NGS. The second, called ngs, is used to manage your billing account with Synadia.
   The installation process is straightforward. Open up a command prompt and type the following:
